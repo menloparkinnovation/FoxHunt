@@ -39,3 +39,49 @@ HTML5 + Javascript that provides a REST/JSON client to the data
 service. This is the basic infrastructure for mobile and tablet
 access, in addition to providing the infrastructure for higher
 level web applications services such as a real-time map.
+
+#Device Setup
+
+To setup a device create a free Azure IoT Hub account which allows one device
+to send reports every 5.5 seconds.
+
+Each ADF/RDF unit reports to its own individually managed Azure IoT Hub to
+allow use of the free tier, and also to distribute the management of
+the ADF/RDF reporting domains since they are likely to be individual
+hams or repeater groups.
+
+Each individually managed IoT Hub may then publish a read-only key
+to any individual or group that wants to aggregate their readings.
+
+This allows for distributed, co-operative management of ADF networks.
+
+www.azure.com
+
+Once your free IoT Hub has been set up (suggested name ADFReport)
+configure your IoT Hub credentials in setcredentials.sh and run
+". ./setcredentials.sh" to set your credentials required by the application.
+
+Then run the node.js program in setup_device. To do so:
+
+cd setup_device
+npm install     // only needed once
+
+./createdeviceidentity.sh
+
+Be sure to record the newly allocated DeviceId and place it in setdevicecredentials.sh
+
+#Reading ADF Device Reports
+
+run ". ./setcredentials.sh" and run the node.js program in read_reports.
+
+cd  read_reports
+npm install  // only needed once
+./readdevicetocloudmessages.sh
+
+#Sending ADF Device Reports
+
+./setdevicecredentials.sh
+
+cd send_reports
+npm install  // only needed once
+./simulateddevice.sh
