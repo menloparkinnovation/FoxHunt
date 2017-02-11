@@ -27,7 +27,7 @@ The report can be a relative, or true bearing depending on the setup.
 All reports go into a database. This data may be queried for time
 period, frequency, and a set of records returned with the reported
 readings. Software can then use this information to perform bearing
-crossings, trianglation, and calculate an estimated position of
+crossings, triangulation, and calculate an estimated position of
 a signal source.
 
 These estimated position calculations can be performed by a web
@@ -63,25 +63,49 @@ configure your IoT Hub credentials in setcredentials.sh and run
 
 Then run the node.js program in setup_device. To do so:
 
-cd setup_device
-npm install     // only needed once
+> cd setup_device
 
-./createdeviceidentity.sh
+> npm install     // only needed once
+
+>./createdeviceidentity.sh
 
 Be sure to record the newly allocated DeviceId and place it in setdevicecredentials.sh
 
 #Reading ADF Device Reports
 
-run ". ./setcredentials.sh" and run the node.js program in read_reports.
+> ". ./setcredentials.sh"
 
-cd  read_reports
-npm install  // only needed once
-./readdevicetocloudmessages.sh
+> npm install     // only needed once
+
+> ./readdevicetocloudmessages.sh
 
 #Sending ADF Device Reports
 
-./setdevicecredentials.sh
+> ./setdevicecredentials.sh
 
-cd send_reports
-npm install  // only needed once
-./simulateddevice.sh
+> cd send_reports
+
+> npm install  // only needed once
+
+> ./simulateddevice.sh
+
+#Further Development
+
+send_reports/SimulatedDevice.js provides a starting point for reporting data from your
+ADF/RDF unit. Typically this will be done by a RaspberryPi, a laptop, or fixed PC.
+
+ADF/RDF units may incorporate microcontrollers such as the Particle Photon for such
+reports using the available C/C++ and multiple language bindings of Azure Iot Hub
+and popular open protocols.
+
+For disconnected operations an ADF unit may log reports and send them as a batch
+when its eventually connected. The reports distinguish the time the report entry was
+generated, from the time it is submitted to the Iot Hub. Data analysis applications use
+the record reporting time for any bearing calculations.
+
+Note that the batch reporting may be a separate computer, such as a laptop reporting
+a batch of readings from an ADF units log on an SD "flash" card.
+
+As the project moves forward additional code will be provided for reporting data
+from specific ADF units, as well as basic web pages for data access and reports.
+
