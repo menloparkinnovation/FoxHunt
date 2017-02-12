@@ -137,7 +137,6 @@ AzureIotHub.prototype.createADFReport = function(deviceName, data)
 
     report.equipment = data.equipment;
 
-    // Tiger Mountain, WA State
     report.observerPosition = data.observerPosition;
 
     // This is the devices time of the observation, and may not be as accurate as GPS time

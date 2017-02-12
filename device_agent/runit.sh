@@ -5,4 +5,4 @@
 # . ../setdevicecredentials.sh
 #
 
-node init.js
+node index.js
