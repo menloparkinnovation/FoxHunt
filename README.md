@@ -89,6 +89,16 @@ Be sure to record the newly allocated DeviceId and place it in setdevicecredenti
 
 > ./simulateddevice.sh
 
+#Device Agent
+
+Device Agent is the framework for creating an automatic reporting ADF device.
+
+It's intended to run on a RaspberryPi or a C.H.I.P. Computer (getchip.com) and
+is written in portable, operating system independent Node.JS.
+
+It may also be run on any laptop such as Windows, Mac, or Linux, or even a Chrome
+Book with the Crouton environment.
+
 #Further Development
 
 send_reports/SimulatedDevice.js provides a starting point for reporting data from your
