@@ -69,9 +69,13 @@ function AzureIotHub(config)
 }
 
 //
+// cloudToDeviceHandler - Invoked when Cloud to Device messages arrive.
+//
+//    Note: These may start arriving right away after the connection is established.
+//
 // callback(error) - invoked when connected
 //
-AzureIotHub.prototype.Initialize = function(callback)
+AzureIotHub.prototype.Initialize = function(cloudToDeviceHandler, callback)
 {
     var self = this;
 
@@ -89,7 +93,43 @@ AzureIotHub.prototype.Initialize = function(callback)
     // operation.
     //
 
-    self.client.open(callback);
+    self.client.open(function(error) {
+
+        if (error != null) {
+            callback(error);
+            return;
+        }
+
+        //
+        // Setup to receive cloud to device messages
+        //
+        // https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-node-node-c2d
+        //
+        self.client.on('message', function (msg) {
+
+            self.tracelog('Id: ' + msg.messageId + ' Body: ' + msg.data);
+
+            // Invoke the callers handler
+            cloudToDeviceHandler(msg);
+
+            // Complete the message on return
+            self.client.complete(msg, self.printResultFor('completed'));
+        });
+
+        // Indicate to the caller the connection is open.
+        callback(error);
+    });
+}
+
+//
+// Register the for cloud to device messages
+//
+// callback(msg)
+//
+AzureIotHub.prototype.RegisterCloudToDeviceHandler = function(callback)
+{
+    var self = this;
+
 }
 
 //

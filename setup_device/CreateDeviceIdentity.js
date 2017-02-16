@@ -23,11 +23,19 @@ var deviceName = 'ADFReport';
 var connectionString = '{iothub connection string}';
 
 //
-// . ./setcredentials.sh
+// . $HOME/credentials/azure_iothub_foxhunt_credentials.sh
 //
-// setcredentials.sh: export AZURE_IOT_HUB_CONNECTION_STRING="your connection string"
+// azure_iothub_foxhunt_credentials.sh:
+//
+// export AZURE_IOT_HUB_CONNECTION_STRING="your connection string"
+//
+// export AZURE_IOT_HUB_DEVICE_CONNECTION_STRING="your device connection string"
 //
 connectionString = process.env.AZURE_IOT_HUB_CONNECTION_STRING;
+
+if ((typeof(connectionString) == "undefined") || (connectionString == null)) {
+    throw("run . $HOME/credentials/azure_iothub_foxhunt_credentials.sh");
+}
 
 var registry = iothub.Registry.fromConnectionString(connectionString);
 

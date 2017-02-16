@@ -2,7 +2,7 @@
 #
 # Requires device credentials to be set.
 #
-# . ../setdevicecredentials.sh
+# . $HOME/credentials/azure_iothub_foxhunt_credentials.sh
 #
 
 node index.js

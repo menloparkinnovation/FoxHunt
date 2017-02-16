@@ -20,11 +20,19 @@ var Message = require('azure-iot-device').Message;
 var connectionString = 'HostName={youriothostname};DeviceId=myFirstNodeDevice;SharedAccessKey={yourdevicekey}';
 
 //
-// . ./setdevicecredentials.sh
+// . $HOME/credentials/azure_iothub_foxhunt_credentials.sh
 //
-// setdevicecredentials.sh: export AZURE_IOT_HUB_DEVICE_CONNECTION_STRING="your connection string"
+// azure_iothub_foxhunt_credentials.sh:
+//
+// export AZURE_IOT_HUB_CONNECTION_STRING="your connection string"
+//
+// export AZURE_IOT_HUB_DEVICE_CONNECTION_STRING="your device connection string"
 //
 connectionString = process.env.AZURE_IOT_HUB_DEVICE_CONNECTION_STRING;
+
+if ((typeof(connectionString) == "undefined") || (connectionString == null)) {
+    throw("run . $HOME/credentials/azure_iothub_foxhunt_credentials.sh");
+}
 
 var deviceName = 'ADFReport';
 
@@ -38,6 +46,19 @@ var connectCallback = function (err) {
      console.log('Could not connect: ' + err);
    } else {
      console.log('Client connected');
+
+     //
+     // Setup to receive cloud to device messages
+     //
+     // https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-node-node-c2d
+     //
+
+     client.on('message', function (msg) {
+
+         console.log('Id: ' + msg.messageId + ' Body: ' + msg.data);
+
+         client.complete(msg, printResultFor('completed'));
+     });
 
      // Create a message and send it to the IoT Hub every second
      setInterval(function(){
@@ -55,7 +76,7 @@ var connectCallback = function (err) {
 
          client.sendEvent(message, printResultFor('send'));
 
-     }, 1000);
+     }, 10000); // 10 seconds
    }
 };
 

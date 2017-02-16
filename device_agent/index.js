@@ -29,11 +29,19 @@
 //
 
 //
-// . ./setdevicecredentials.sh
+// . $HOME/credentials/azure_iothub_foxhunt_credentials.sh
 //
-// setdevicecredentials.sh: export AZURE_IOT_HUB_DEVICE_CONNECTION_STRING="your connection string"
+// azure_iothub_foxhunt_credentials.sh:
+//
+// export AZURE_IOT_HUB_CONNECTION_STRING="your connection string"
+//
+// export AZURE_IOT_HUB_DEVICE_CONNECTION_STRING="your device connection string"
 //
 var g_connectionString = process.env.AZURE_IOT_HUB_DEVICE_CONNECTION_STRING;
+
+if ((typeof(g_connectionString) == "undefined") || (g_connectionString == null)) {
+    throw("run . $HOME/credentials/azure_iothub_foxhunt_credentials.sh");
+}
 
 var g_deviceName = 'ADFReport';
 

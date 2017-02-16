@@ -55,16 +55,54 @@ function DeviceAgent(config)
     self.gpsHandler = null;
 }
 
+//
+// Handle Cloud to Device Messages.
+//
+DeviceAgent.prototype.CloudToDeviceMessage = function(msg)
+{
+    var self = this;
+
+    self.tracelog("CloudToDeviceMessage received!");
+
+    self.tracelog('Id: ' + msg.messageId + ' Body: ' + msg.data);
+}
+
 DeviceAgent.prototype.Initialize = function(callback)
 {
     var self = this;
 
     //
+    // Need to bind our local "this" to the callback so
+    // it runs in this modules context, and not our callers.
+    //
+    // We could supply our "this" to the caller, but closures
+    // handle this nicely in the language itself.
+    //
+    var cloudToDeviceClosure = function(msg) {
+        self.CloudToDeviceMessage(msg);
+    };
+
+    //
     // Initialize the IoT Hub
     //
-    self.iotHub.Initialize(function(error) {
+    // Note: Cloud to Device messages may already have been enqueued
+    // for this device so we must be ready to receive them.
+    //
+    self.iotHub.Initialize(cloudToDeviceClosure, function(error) {
         callback(error);
     });
+}
+
+//
+// TraceLog
+//
+DeviceAgent.prototype.tracelog = function(message)
+{
+    var self = this;
+
+    if (self.trace) {
+        console.log(message);
+    }
 }
 
 //
