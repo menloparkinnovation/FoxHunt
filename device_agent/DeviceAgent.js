@@ -6,6 +6,45 @@
 //
 
 //
+//   FoxHunt - DeviceAgent
+//
+//   Copyright (C) 2017 Menlo Park Innovation LLC
+//
+//   menloparkinnovation.com
+//   menloparkinnovation@gmail.com
+//
+//   Snapshot License
+//
+//   This license is for a specific snapshot of a base work of
+//   Menlo Park Innovation LLC on a non-exclusive basis with no warranty
+//   or obligation for future updates. This work, any portion, or derivative
+//   of it may be made available under other license terms by
+//   Menlo Park Innovation LLC without notice or obligation to this license.
+//
+//   There is no warranty, statement of fitness, statement of
+//   fitness for any purpose, and no statements as to infringements
+//   on any patents.
+//
+//   Menlo Park Innovation has no obligation to offer support, updates,
+//   future revisions and improvements, source code, source code downloads,
+//   media, etc.
+//
+//   This specific snapshot is made available under the following license:
+//
+//   Licensed under the MIT License (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://opensource.org/licenses/MIT
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//
+
+//
 // The MIT License (MIT)
 // Copyright (c) 2017 Menlo Park Innovation LLC
 // 
