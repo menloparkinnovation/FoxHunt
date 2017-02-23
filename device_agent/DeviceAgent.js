@@ -94,6 +94,31 @@ function DeviceAgent(config)
     self.gpsHandler = null;
 }
 
+DeviceAgent.prototype.LoadAdfHandler = function(callback)
+{
+    var self = this;
+
+    self.adfHandlerFactory = require('./AgrelloADF.js');
+
+    var config = {};
+    config.trace = true;
+    config.traceerror = true;
+
+    // TODO: get from JSON config
+    // sudo npm install serialport -save
+    config.portName = "/dev/cu.usbmodem1413";
+
+    self.adfHandler = new self.adfHandlerFactory.AgrelloADF(config);
+
+    self.adfHandler.StartReader(function(data) {
+
+        console.log("ADFHandler: Got data!");
+
+    });
+
+    callback(null);
+}
+
 //
 // Handle Cloud to Device Messages.
 //
@@ -122,13 +147,24 @@ DeviceAgent.prototype.Initialize = function(callback)
     };
 
     //
-    // Initialize the IoT Hub
+    // Initialize the ADF unit
     //
-    // Note: Cloud to Device messages may already have been enqueued
-    // for this device so we must be ready to receive them.
-    //
-    self.iotHub.Initialize(cloudToDeviceClosure, function(error) {
-        callback(error);
+    self.LoadAdfHandler(function(error) {
+
+        if (error != null) {
+            callback(error);
+            return;
+        }
+
+        //
+        // Initialize the IoT Hub
+        //
+        // Note: Cloud to Device messages may already have been enqueued
+        // for this device so we must be ready to receive them.
+        //
+        self.iotHub.Initialize(cloudToDeviceClosure, function(error) {
+            callback(error);
+        });
     });
 }
 
