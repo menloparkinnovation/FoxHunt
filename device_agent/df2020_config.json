@@ -1,0 +1,15 @@
+{
+    "port": "/dev/cu.usbmodem1413",
+    "deviceAlias": "Whidbey Weather",
+    "observer": "Whidbey Island North",
+    "equipment": "KN2C DF 2020T",
+    "signalFrequency": "146.52",
+    "modulationType": "NFM",
+    "reportType": "ADF",
+    "setupConfidence": "7",
+    "adfHandler": "./AgrelloADF.js",
+    "trace": true,
+    "traceerror": true,
+    "configurationVersion": "1",
+    "simulation": false
+}

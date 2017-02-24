@@ -83,13 +83,10 @@ function DeviceAgent(config)
 
     self.iotHub = new self.iotHubFactory.AzureIotHub(self.config);
 
-    //
-    // TODO: Load ADF unit report channel handler.
-    //
     self.adfHandler = null;
 
     //
-    // TODO: Load optional GPS report channel handler.
+    // Optional GPS report channel handler.
     //
     self.gpsHandler = null;
 }
@@ -98,15 +95,14 @@ DeviceAgent.prototype.LoadAdfHandler = function(callback)
 {
     var self = this;
 
-    self.adfHandlerFactory = require('./AgrelloADF.js');
+    self.adfHandlerFactory = require(self.config.adfHandler);
 
     var config = {};
     config.trace = self.trace;
     config.traceerror = self.trace;
 
-    // TODO: get from JSON config
     // sudo npm install serialport -save
-    config.portName = "/dev/cu.usbmodem1413";
+    config.portName = self.config.port;
 
     self.adfHandler = new self.adfHandlerFactory.AgrelloADF(config);
 
@@ -210,15 +206,20 @@ DeviceAgent.prototype.StartSimulation = function()
 
 DeviceAgent.prototype.CreateDataReport = function(data)
 {
+    var self = this;
+
+    var config = self.config;
+
     var report = {};
 
     // This is what ever name your group uses for the ADF report hardware.
-    report.deviceAlias = "Whidbey Weather";
+    report.deviceAlias = config.deviceAlias;
 
-    report.observer = "Whidbey Island North";
+    report.observer = config.observer;
 
-    report.equipment = "KN2C DF 2020T ADF";
+    report.equipment = config.equipment;
 
+    // Need GPS data
     report.observerPosition = "";
 
     // This is the devices time of the observation, and may not be as accurate as GPS time
@@ -255,13 +256,13 @@ DeviceAgent.prototype.CreateDataReport = function(data)
     report.absoluteMagneticBearing = null;
 
     // In Mhz
-    report.signalFrequency = 146.52;
+    report.signalFrequency = config.signalFrequency;
 
     // In db
     report.signalStrength = 21.4;
 
     // String
-    report.modulationType = "FM";
+    report.modulationType = config.modulationType;
 
     //
     // reportType could be:
@@ -271,7 +272,7 @@ DeviceAgent.prototype.CreateDataReport = function(data)
     // Human Observer
     // 
 
-    report.reportType = "ADF";
+    report.reportType = config.reportType;
 
     // Scale of 1 - 10 based on your equipment confidence, signal quality.
     report.confidence = data.quality;

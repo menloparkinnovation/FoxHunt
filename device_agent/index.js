@@ -28,6 +28,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+var fs = require('fs');
+
 //
 // . $HOME/credentials/azure_iothub_foxhunt_credentials.sh
 //
@@ -49,11 +51,30 @@ function MainApp(ac, av)
 {
     var self = this;
 
-    var config = {};
+    if (ac != 2) {
+        console.log("device_agent config.json");
+        process.exit(1);
+    }
 
-    config.trace = true;
+    var filename = av[1];
+
+    //
+    // Read the JSON configuration file
+    //
+
+    var config = null;
+
+    try {
+        var jsonText = fs.readFileSync(filename);
+        config = JSON.parse(jsonText);
+    }
+    catch(e) {
+        console.error("exception processing jsonfile e=" + e);
+        process.exit(1);
+    }
+
+    // Add the IoT Hub connection string
     config.connectionString = g_connectionString;
-    config.deviceName = g_deviceName;
 
     self.deviceAgentFactory = require('./DeviceAgent.js');
 
@@ -66,8 +87,9 @@ function MainApp(ac, av)
             process.exit(1);
         }
 
-        // TODO: Drive this with configuration
-        //self.deviceAgent.StartSimulation();
+        if ((typeof(config.simulation) != "undefined") && config.simulation) {
+            self.deviceAgent.StartSimulation();
+        }
     });
 }
 
