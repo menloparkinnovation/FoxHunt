@@ -133,6 +133,8 @@ function AgrelloADF(config)
 // 
 // http://www.silcom.com/~pelican2/PicoDopp/PICO_MORE.html
 // 
+// %240/7<CR>
+//
 AgrelloADF.prototype.AgrelloStringToObject = function(data)
 {
     var ob = {};

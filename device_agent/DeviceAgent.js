@@ -101,8 +101,8 @@ DeviceAgent.prototype.LoadAdfHandler = function(callback)
     self.adfHandlerFactory = require('./AgrelloADF.js');
 
     var config = {};
-    config.trace = true;
-    config.traceerror = true;
+    config.trace = self.trace;
+    config.traceerror = self.trace;
 
     // TODO: get from JSON config
     // sudo npm install serialport -save
@@ -112,8 +112,16 @@ DeviceAgent.prototype.LoadAdfHandler = function(callback)
 
     self.adfHandler.StartReader(function(data) {
 
-        console.log("ADFHandler: Got data!");
+        console.log("ADFHandler: Got data=");
+        console.log(data);
 
+        var report = self.CreateDataReport(data)
+    
+        self.iotHub.SendReport(report, function(error) {
+            if (error != null) {
+                console.log("iotHub.SendReport error=" + error);
+            }
+        });
     });
 
     callback(null);
@@ -198,6 +206,77 @@ DeviceAgent.prototype.StartSimulation = function()
         });
     
     }, 10000);
+}
+
+DeviceAgent.prototype.CreateDataReport = function(data)
+{
+    var report = {};
+
+    // This is what ever name your group uses for the ADF report hardware.
+    report.deviceAlias = "Whidbey Weather";
+
+    report.observer = "Whidbey Island North";
+
+    report.equipment = "KN2C DF 2020T ADF";
+
+    report.observerPosition = "";
+
+    // This is the devices time of the observation, and may not be as accurate as GPS time
+    report.deviceUTCTime = new Date(Date.now()).toISOString();
+
+    //
+    // Note: GPS time is more accurate and should be provided if possible.
+    //
+    // Simulation: Do not report GPS time if not available.
+    //
+
+    // This is the GPS time of the observation.
+    report.gpsUTCTime = new Date(Date.now()).toISOString();
+
+    //
+    // This is an optional time when the device is sending the report
+    // not the observation times which are reported above.
+    //
+    report.deviceReportingUTCTime = new Date(Date.now()).toISOString();
+
+    //
+    // Bearing reports from True North are preferred.
+    //
+
+    // Bearing from True North
+    report.absoluteBearing = data.bearing;
+
+    report.directionQuality = data.quality;
+
+    // Relative to the unit.
+    report.relativeBearing = null;
+
+    // Bearing from Magnetic North
+    report.absoluteMagneticBearing = null;
+
+    // In Mhz
+    report.signalFrequency = 146.52;
+
+    // In db
+    report.signalStrength = 21.4;
+
+    // String
+    report.modulationType = "FM";
+
+    //
+    // reportType could be:
+    //
+    // ADF
+    // Manual RDF
+    // Human Observer
+    // 
+
+    report.reportType = "ADF";
+
+    // Scale of 1 - 10 based on your equipment confidence, signal quality.
+    report.confidence = data.quality;
+
+    return report;
 }
 
 //

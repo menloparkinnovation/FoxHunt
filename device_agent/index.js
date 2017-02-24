@@ -66,7 +66,8 @@ function MainApp(ac, av)
             process.exit(1);
         }
 
-        self.deviceAgent.StartSimulation();
+        // TODO: Drive this with configuration
+        //self.deviceAgent.StartSimulation();
     });
 }
 
