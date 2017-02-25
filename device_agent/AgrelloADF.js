@@ -111,8 +111,22 @@ function AgrelloADF(config)
     }
 
     self.portName = config.portName;
+    self.baudRate = config.baudRate;
 
     self.serialHandler = null;
+
+    //
+    // Unhandled messages are sent to this function if configured.
+    //
+    // For example the DF 2020 provides GPS message passthrough
+    // which are handled by a separate module, but on the same
+    // serial port.
+    //
+    self.unhandledMessageHandler = null;
+
+    if (typeof(config.unhandledMessageHandler) != "undefined") {
+        self.unhandledMessageHandler = config.unhandledMessageHandler;
+    }
 }
 
 //
@@ -199,6 +213,8 @@ AgrelloADF.prototype.StartReader = function(dataCallback)
     config.trace = self.trace;
     config.traceerror = self.traceErrorValue;
 
+
+
     self.serialHandler = new serialHandlerFactory.SerialHandler(config);
 
     //
@@ -207,6 +223,7 @@ AgrelloADF.prototype.StartReader = function(dataCallback)
     //
     var options = {};
     options.name = self.portName;
+    options.baudRate = self.baudRate;
     options.linemode = true;
 
     self.serialHandler.open(options, function(error, data) {
@@ -247,7 +264,18 @@ AgrelloADF.prototype.DataArrivedHandler = function(data, dataCallback)
         dataCallback(parsedData);
     }
     else {
-        self.traceerror("error parsing data: " + parsedData.error);
+
+        self.tracelog("error parsing data: " + parsedData.error);
+
+        //
+        // Error parsing the message as Agrello Data. Send it on the
+        // unconfigured handler if set since this could be a GPS passthrough
+        // message.
+        //
+
+        if (self.unhandledMessageHandler != null) {
+            self.unhandledMessageHandler(data);
+        }
     }
 }
 

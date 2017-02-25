@@ -76,7 +76,19 @@ function DeviceAgent(config)
 
     self.config = config;
 
-    self.trace = config.trace;
+    self.moduleName = "DeviceAgent";
+
+    self.trace = false;
+
+    self.traceErrorValue = false;
+
+    if (typeof(config.trace) != "undefined") {
+        self.trace = config.trace;
+    }
+
+    if (typeof(config.traceerrorValue) != "undefined") {
+        self.traceerrorValue = config.traceerrorValue;
+    }
 
     // Load Azure IoT Hub support
     self.iotHubFactory = require('./AzureIotHub');
@@ -86,11 +98,24 @@ function DeviceAgent(config)
     self.adfHandler = null;
 
     //
-    // Optional GPS report channel handler.
+    // Load GPS handler.
     //
-    self.gpsHandler = null;
+    self.gpsParserFactory = require('./nmea_gps.js');
+
+    self.gpsParser = null;
+
+    var gpsConfig = {};
+    gpsConfig.trace = self.trace;
+    gpsConfig.traceerror = self.traceErrorValue;
+
+    self.gpsParser = new self.gpsParserFactory.createInstance(gpsConfig);
+
+    self.lastGpsFix = null;
 }
 
+//
+// Load the ADF handler
+//
 DeviceAgent.prototype.LoadAdfHandler = function(callback)
 {
     var self = this;
@@ -103,12 +128,21 @@ DeviceAgent.prototype.LoadAdfHandler = function(callback)
 
     // sudo npm install serialport -save
     config.portName = self.config.port;
+    config.baudRate = self.config.baudRate;
+
+    //
+    // Setup a handler for unhandled messages since they could be
+    // embedded GPS messages.
+    //
+    config.unhandledMessageHandler = function(data) {
+        self.unhandledMessageHandler(data);
+    };
 
     self.adfHandler = new self.adfHandlerFactory.AgrelloADF(config);
 
     self.adfHandler.StartReader(function(data) {
 
-        console.log("ADFHandler: Got data=");
+        console.log("ADFHandler: Got Sending to Cloud: data=");
         console.log(data);
 
         var report = self.CreateDataReport(data)
@@ -121,6 +155,39 @@ DeviceAgent.prototype.LoadAdfHandler = function(callback)
     });
 
     callback(null);
+}
+
+//
+// Process an unhandled message from the ADF unit.
+//
+// Many ADF units will pass through GPS messages to be handled
+// by the GPS parser.
+//
+DeviceAgent.prototype.unhandledMessageHandler = function(data)
+{
+    var self = this;
+
+    //
+    // Attempt to parse as a potential GPS message
+    //
+    self.gpsParser.ParseMessage(data, function(gpsError, gpsData) {
+
+        if (gpsError != null) {
+            self.traceerror("error parsing GPS message error=" + gpsError);
+            self.traceerror("DeviceAgent: Unhandled Message!");
+            if (self.traceErrorValue) {
+                console.log(data);
+            }
+            return;
+        }
+
+        self.tracelog("Received Valid GPS Data: parsed GPS data=");
+        if (self.trace) {
+            console.log(gpsData);
+        }
+
+        self.lastGpsFix = gpsData;
+    });
 }
 
 //
@@ -219,20 +286,36 @@ DeviceAgent.prototype.CreateDataReport = function(data)
 
     report.equipment = config.equipment;
 
-    // Need GPS data
-    report.observerPosition = "";
-
-    // This is the devices time of the observation, and may not be as accurate as GPS time
-    report.deviceUTCTime = new Date(Date.now()).toISOString();
-
+    //
+    // GPS data
     //
     // Note: GPS time is more accurate and should be provided if possible.
     //
-    // Simulation: Do not report GPS time if not available.
-    //
+    if (self.lastGpsFix != null) {
 
-    // This is the GPS time of the observation.
-    report.gpsUTCTime = new Date(Date.now()).toISOString();
+        // This allows the caller to decode
+        report.gpsNMEAMessage = self.lastGpsFix.sentence;
+
+        var m = self.lastGpsFix.message;
+
+        if (m.readingIsGood) {
+            report.observerPosition = m.latitude + " " + m.longitude;
+
+            // This is the GPS time of the observation.
+            report.gpsUTCTime = m.UTCTime;
+        }
+        else {
+            report.observerPosition = "";
+            report.gpsUTCTime = "";
+        }
+    }
+    else {
+        report.observerPosition = "";
+        report.gpsUTCTime = "";
+    }
+
+    // This is the devices time of the observation, and may not be as accurate as GPS time
+    report.deviceUTCTime = new Date(Date.now()).toISOString();
 
     //
     // This is an optional time when the device is sending the report
@@ -352,6 +435,18 @@ function CreateSimulatedDataReport()
     report.confidence = 10;
 
     return report;
+}
+
+DeviceAgent.prototype.tracelog = function(message) {
+    if (this.trace) {
+        console.log(this.moduleName + ": " + message);
+    }
+}
+
+DeviceAgent.prototype.traceerror = function(message) {
+    if (this.traceerrorValue) {
+        console.error(this.moduleName + ": " + message);
+    }
 }
 
 module.exports = {

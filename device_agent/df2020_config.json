@@ -1,5 +1,6 @@
 {
-    "port": "/dev/cu.usbmodem1413",
+    "port": "/dev/cu.usbserial-AL020VXE",
+    "baudRate": 4800,
     "deviceAlias": "Whidbey Weather",
     "observer": "Whidbey Island North",
     "equipment": "KN2C DF 2020T",

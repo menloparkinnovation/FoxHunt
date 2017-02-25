@@ -77,6 +77,13 @@ function SerialHandler(config)
 
     // Actual port instance
     self.serialport = null;
+
+    // defaults
+    self.baudRate = 9600;
+
+    self.stopBits = 1;
+
+    self.parity = "none";
 }
 
 //
@@ -106,6 +113,8 @@ SerialHandler.prototype.write = function(data, callback) {
 //
 //   data type is based on linemode.
 //
+//   options.baudRate - If defined is set.
+//
 //   options.linemode == true
 //       string data buffer with character data
 //
@@ -115,6 +124,55 @@ SerialHandler.prototype.write = function(data, callback) {
 //
 //   ((error == null) && (data == null)) - First callback on successful open
 //
+
+/*
+    Possible options. See openWorker() for whats implemented.
+    
+    https://www.npmjs.com/package/serialport
+
+    Port configuration options.
+
+    autoOpen Automatically opens the port on nextTick, defaults to true.
+
+    lock Prevent other processes from opening the port, defaults
+     to true. false is not currently supported on windows.
+
+    baudRate Baud Rate, defaults to 9600. Should be one of: 115200,
+     57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300,
+     200, 150, 134, 110, 75, or 50. Custom rates as allowed by
+     hardware is supported. Windows 
+    doesn't support custom baud rates.
+
+    dataBits Data Bits, defaults to 8. Must be one of: 8, 7, 6, or 5.
+
+    stopBits Stop Bits, defaults to 1. Must be one of: 1 or 2.
+
+    parity Parity, defaults to 'none'. Must be one of: 'none', 'even',
+     'mark', 'odd', 'space'
+
+    rtscts flow control, defaults to false
+
+    xon flow control, defaults to false
+
+    xoff flow control, defaults to false
+
+    xany flow control, defaults to false
+
+    bufferSize Size of read buffer, defaults to 65536. Must be an integer value.
+
+    parser The parser engine to use with read data, defaults to rawPacket
+    strategy which just emits the raw buf
+    fer as a "data" event. Can be any function that accepts EventEmitter
+    as first parameter and the raw buffer as the second parameter.
+
+    Unix Platform Options
+    These properties are ignored for windows. An object with the following properties:
+
+    vmin (default: 1) - see man termios
+    vtime (default: 0) - see man termios    
+    
+*/
+
 SerialHandler.prototype.open = function(options, callback) {
     var self = this;
 
@@ -173,12 +231,34 @@ SerialHandler.prototype.open = function(options, callback) {
 SerialHandler.prototype.openWorker = function(options, callback) {
     var self = this;
 
+    //
+    // Process port open options
+    //
+
+    if (typeof(options.baudRate) != "undefined") {
+        self.baudRate = options.baudRate;
+    }
+
+    if (typeof(options.stopBits) != "undefined") {
+        self.stopBits = options.stopBits;
+    }
+
+    if (typeof(options.parity) != "undefined") {
+        self.parity = options.parity;
+    }
+
     self.serialPortFactory = require('serialport');
 
     //
     // This does any require() to lookup the proper SerialPort
     // package for the given portName.
     //
+
+    var serialParameters = {};
+
+    serialParameters.baudRate = self.baudRate;
+    serialParameters.stopBits = self.stopBits;
+    serialParameters.parity = self.parity;
 
     if (options.linemode) {
 
@@ -196,8 +276,9 @@ SerialHandler.prototype.openWorker = function(options, callback) {
         // node_modules/serialport/parsers.js
         //
 
-	self.serialport = new self.serialPortFactory(options.name,
-		{ parser: self.serialPortFactory.parsers.readline("\n")});
+        serialParameters.parser = self.serialPortFactory.parsers.readline("\n");
+
+	self.serialport = new self.serialPortFactory(options.name, serialParameters);
     }
     else {
 
@@ -210,7 +291,7 @@ SerialHandler.prototype.openWorker = function(options, callback) {
 	// You must use data.toString() or String.fromCharCode() to generate
 	// a string from the raw binary data received.
 	//
-	self.serialport = new self.serialportFactory(options.name);
+	self.serialport = new self.serialportFactory(options.name, serialParameters);
     }
 
     self.serialport.on ('error', function(error) {
