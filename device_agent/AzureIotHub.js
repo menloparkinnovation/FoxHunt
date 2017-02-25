@@ -187,7 +187,9 @@ AzureIotHub.prototype.createADFReport = function(deviceName, data)
     //
 
     // This is the GPS time of the observation.
-    report.gpsUTCTime = data.gpsTime;
+    report.gpsUTCTime = data.gpsUTCTime;
+
+    report.gpsNMEAMessage = data.gpsNMEAMessage;
 
     //
     // This is an optional time when the device is sending the report
