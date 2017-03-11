@@ -1,0 +1,16 @@
+{
+  "name": "FoxHuntIot",
+  "version": "0.0.1",
+  "description": "IoT Connected FoxHunt/RDF Application",
+  "main": "foxunutiot.js",
+  "scripts": {
+    "start": "node ./foxhuntiot.js config/config.json",
+    "test": "node ./foxhuntiot.js config/simulation.json"
+  },
+  "author": "MenloParkInnovation LLC",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.16.0",
+    "express": "^4.14.0"
+  }
+}

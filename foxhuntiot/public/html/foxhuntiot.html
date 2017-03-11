@@ -1,0 +1,429 @@
+
+<html>
+  <head>
+
+    <title>FoxHunt IoT</title>
+
+    <!-- declare this can act as a local app -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- iphone non-retina is 60x60 at 163 ppi -->
+    <link rel="apple-touch-icon" href="/images/iphone_60x60_whidbey_weather.png">
+
+    <!-- ipad non-retina is 76x76 at 132 ppi -->
+    <link rel="apple-touch-icon" sizes="76x76" href="/images/ipad_76x76_whidbey_weather.png">
+
+    <!-- iphone retina is 120x120 at 326 ppi -->
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/iphone_retina_120x120_whidbey_weather.png">
+
+    <!-- ipad retina is 152x152 at 264 ppi -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/ipad_retina_152x152_whidbey_weather.png">
+
+    <link rel="stylesheet" type="text/css" href="/css/foxhuntiot.css">
+
+    <!-- This gives the dynamic scale code something to lookup with getElementById() -->
+    <!-- The default .class_gauge {} starts in the external stylesheet for the device -->
+    <!-- but is updated by the dynamic page handling code. -->
+    <style id="gauge_style">
+    </style>
+
+    <style id="table_margin_style">
+    </style>
+
+    <!-- Generic Libraries included by all IoT Application Projects -->
+
+    <!-- Standard RestExpressClient library -->
+    <script src="/javascripts/restexpressclient.js"></script>
+
+    <!-- HTML Tables library -->
+    <script type="text/javascript" src="/javascripts/htmltables.js"></script>
+
+    <!-- Generic IoT application View Controller Script -->
+    <script type="text/javascript" src="/javascripts/iotappviewcontroller.js"></script>
+
+    <!-- Page Specific State and Handler -->
+
+    <!-- View Controller: Code behind page -->
+    <script type="text/javascript" src="/javascripts/foxhuntiot.js"></script>
+
+    <!-- Controls for humidor code behind page -->
+    <script type="text/javascript" src="/javascripts/foxhuntiotcontrols.js"></script>
+
+    <!-- Model: Application Data Model -->
+    <script src="/javascripts/foxhuntiotmodel.js"></script>
+
+    <!-- Model: Credentials are retrieved JSONP style from the server -->
+    <script src="/javascripts/foxhuntiotmodelcreds.js"></script>
+
+    <!-- Per page support for custom objects such as gauges, strip charts, etc. -->
+
+    <!-- Canvas Gauges -->
+    <script type="text/javascript" src="/javascripts/gauge.min.js"></script>
+
+    <!-- Chart.js -->
+    <script type="text/javascript" src="/javascripts/Chart.min.js"></script>
+
+    <!-- Gauges using Canvas Gauges library -->
+    <script type="text/javascript" src="/javascripts/iotcanvasgauges.js"></script>
+
+    <!-- Strip charts using Chart.js -->
+    <script type="text/javascript" src="/javascripts/iotstripchart.js"></script>
+
+  </head>
+
+  <body onorientationchange="updateOrientation();" onload="bodyPageLoaded()">
+
+    <!-- The top most form supplies operator controls -->
+    <form class="range_form" id="range_form" action="">
+
+      <button type="button" class="top_menu_button" onclick="top_menu4_button_clicked()">Details</button>
+      <button type="button" class="top_menu_button" onclick="top_menu5_button_clicked()">Flip</button>
+
+      <input class="scale_input" id="scale_input" type="range" min="25" max="200" onchange="scale_changed()"/>
+    </form>
+
+    <!-- Create a form whose .css places it on the bottom as a status lone -->
+    <!-- See .status_bar class id in foxhuntiot.css for its configuration -->
+    <form class="status_bar" action="">
+      <input class="status_bar_input" id="status_bar_input" autocomplete="off" />
+      <button type="button" class="status_bar_button" onclick="status_button_clicked()">Status</button>
+      <button type="button" class="status_bar_button" onclick="settings_button_clicked()">Settings</button>
+    </form>
+
+    <!-- Use a table to organize the gauges in an X, Y matrix -->
+    <!-- class "class_gauge" allows .css to define cell dimensions  -->
+
+   <div id="landscape_display" style="display:none;">
+
+    <!-- Landscape Mode -->
+    <table id="table_landscape" class="class_table_margin">
+
+        <!-- Note: Id's must be unique, or the bindings will fail and the 
+             table will not display. -->
+
+        <tr>
+
+          <!-- Show signal convergence in background -->
+          <td style="width:33%;">
+          </td>
+
+          <td style="width:33%;display:block;margin-left:auto;margin-right:auto">
+
+             <canvas
+                    data-value=70
+                    id="signal_direction_gauge"
+                    data-type="radial-gauge"
+                    data-width="300"
+                    data-height="300"
+                    data-units="°True"
+                    data-title="Signal Direction"
+                    data-min-value="0"
+                    data-max-value="360"
+                    data-major-ticks="[0,45,90,135,180,225,270,315,360]"
+                    data-minor-ticks="2"
+                    data-stroke-ticks="true"
+                    data-highlights='[
+                                {"from": 0, "to": 360, "color": "rgba(0,0, 255, .3)"},
+                                {"from": 75, "to": 100, "color": "rgba(255, 0, 0, .3)"}
+                            ]'
+                    data-ticks-angle="225"
+                    data-start-angle="67.5"
+                    data-color-major-ticks="#ddd"
+                    data-color-minor-ticks="#ddd"
+                    data-color-title="#eee"
+                    data-color-units="#ccc"
+                    data-color-numbers="#eee"
+                    data-color-plate="#222"
+                    data-border-shadow-width="0"
+                    data-borders="true"
+                    data-needle-type="arrow"
+                    data-needle-width="2"
+                    data-needle-circle-size="7"
+                    data-needle-circle-outer="true"
+                    data-needle-circle-inner="false"
+                    data-animation-duration="1500"
+                    data-animation-rule="linear"
+                    data-color-border-outer="#333"
+                    data-color-border-outer-end="#111"
+                    data-color-border-middle="#222"
+                    data-color-border-middle-end="#111"
+                    data-color-border-inner="#111"
+                    data-color-border-inner-end="#333"
+                    data-color-needle-shadow-down="#333"
+                    data-color-needle-circle-outer="#333"
+                    data-color-needle-circle-outer-end="#111"
+                    data-color-needle-circle-inner="#111"
+                    data-color-needle-circle-inner-end="#222"
+                    data-value-box-border-radius="0"
+                    data-color-value-box-rect="#222"
+                    data-color-value-box-rect-end="#333"
+                    data-font-value="Led"
+                    data-font-numbers="Led"
+                    data-font-title="Led"
+                    data-font-units="Led"
+            ></canvas>
+
+          </td>
+
+          <td style="width:5%">
+            <!-- This is just fill to center over the charts -->
+            <!-- 5% gives room to see the signal source on the background bitmap -->
+          </td>
+
+          <td style="width:33%;display:block;margin-left:auto;margin-right:auto">
+
+             <canvas
+                    data-value=70
+                    id="observer_direction_gauge"
+                    data-type="radial-gauge"
+                    data-width="300"
+                    data-height="300"
+                    data-units="°True"
+                    data-title="Observer Direction"
+                    data-min-value="0"
+                    data-max-value="360"
+                    data-major-ticks="[0,45,90,135,180,225,270,315,360]"
+                    data-minor-ticks="2"
+                    data-stroke-ticks="true"
+                    data-highlights='[
+                                {"from": 0, "to": 360, "color": "rgba(0,0, 255, .3)"},
+                                {"from": 75, "to": 100, "color": "rgba(255, 0, 0, .3)"}
+                            ]'
+                    data-ticks-angle="225"
+                    data-start-angle="67.5"
+                    data-color-major-ticks="#ddd"
+                    data-color-minor-ticks="#ddd"
+                    data-color-title="#eee"
+                    data-color-units="#ccc"
+                    data-color-numbers="#eee"
+                    data-color-plate="#222"
+                    data-border-shadow-width="0"
+                    data-borders="true"
+                    data-needle-type="arrow"
+                    data-needle-width="2"
+                    data-needle-circle-size="7"
+                    data-needle-circle-outer="true"
+                    data-needle-circle-inner="false"
+                    data-animation-duration="1500"
+                    data-animation-rule="linear"
+                    data-color-border-outer="#333"
+                    data-color-border-outer-end="#111"
+                    data-color-border-middle="#222"
+                    data-color-border-middle-end="#111"
+                    data-color-border-inner="#111"
+                    data-color-border-inner-end="#333"
+                    data-color-needle-shadow-down="#333"
+                    data-color-needle-circle-outer="#333"
+                    data-color-needle-circle-outer-end="#111"
+                    data-color-needle-circle-inner="#111"
+                    data-color-needle-circle-inner-end="#222"
+                    data-value-box-border-radius="0"
+                    data-color-value-box-rect="#222"
+                    data-color-value-box-rect-end="#333"
+                    data-font-value="Led"
+                    data-font-numbers="Led"
+                    data-font-title="Led"
+                    data-font-units="Led"
+            ></canvas>
+
+          </td>
+
+        </tr>
+
+    </table>
+
+   </div>
+
+    <!-- Portrait Mode -->
+   <div id="portrait_display" style="display:none;">
+
+    <table id="portrait_gauges" class="class_table_margin">
+
+        <tr>
+
+           <td style="width:50%">
+
+             <canvas
+                    data-value=70
+                    id="signal_direction_gauge"
+                    data-type="radial-gauge"
+                    data-width="300"
+                    data-height="300"
+                    data-units="°True"
+                    data-title="Signal Direction"
+                    data-min-value="0"
+                    data-max-value="360"
+                    data-major-ticks="[0,45,90,135,180,225,270,315,360]"
+                    data-minor-ticks="2"
+                    data-stroke-ticks="true"
+                    data-highlights='[
+                                {"from": 0, "to": 360, "color": "rgba(0,0, 255, .3)"},
+                                {"from": 75, "to": 100, "color": "rgba(255, 0, 0, .3)"}
+                            ]'
+                    data-ticks-angle="225"
+                    data-start-angle="67.5"
+                    data-color-major-ticks="#ddd"
+                    data-color-minor-ticks="#ddd"
+                    data-color-title="#eee"
+                    data-color-units="#ccc"
+                    data-color-numbers="#eee"
+                    data-color-plate="#222"
+                    data-border-shadow-width="0"
+                    data-borders="true"
+                    data-needle-type="arrow"
+                    data-needle-width="2"
+                    data-needle-circle-size="7"
+                    data-needle-circle-outer="true"
+                    data-needle-circle-inner="false"
+                    data-animation-duration="1500"
+                    data-animation-rule="linear"
+                    data-color-border-outer="#333"
+                    data-color-border-outer-end="#111"
+                    data-color-border-middle="#222"
+                    data-color-border-middle-end="#111"
+                    data-color-border-inner="#111"
+                    data-color-border-inner-end="#333"
+                    data-color-needle-shadow-down="#333"
+                    data-color-needle-circle-outer="#333"
+                    data-color-needle-circle-outer-end="#111"
+                    data-color-needle-circle-inner="#111"
+                    data-color-needle-circle-inner-end="#222"
+                    data-value-box-border-radius="0"
+                    data-color-value-box-rect="#222"
+                    data-color-value-box-rect-end="#333"
+                    data-font-value="Led"
+                    data-font-numbers="Led"
+                    data-font-title="Led"
+                    data-font-units="Led"
+            ></canvas>
+
+          </td>
+
+           <td style="width:50%">
+
+             <canvas
+                    data-value=70
+                    id="observer_direction_gauge"
+                    data-type="radial-gauge"
+                    data-width="300"
+                    data-height="300"
+                    data-units="°True"
+                    data-title="Observer Direction"
+                    data-min-value="0"
+                    data-max-value="360"
+                    data-major-ticks="[0,45,90,135,180,225,270,315,360]"
+                    data-minor-ticks="2"
+                    data-stroke-ticks="true"
+                    data-highlights='[
+                                {"from": 0, "to": 360, "color": "rgba(0,0, 255, .3)"},
+                                {"from": 75, "to": 100, "color": "rgba(255, 0, 0, .3)"}
+                            ]'
+                    data-ticks-angle="225"
+                    data-start-angle="67.5"
+                    data-color-major-ticks="#ddd"
+                    data-color-minor-ticks="#ddd"
+                    data-color-title="#eee"
+                    data-color-units="#ccc"
+                    data-color-numbers="#eee"
+                    data-color-plate="#222"
+                    data-border-shadow-width="0"
+                    data-borders="true"
+                    data-needle-type="arrow"
+                    data-needle-width="2"
+                    data-needle-circle-size="7"
+                    data-needle-circle-outer="true"
+                    data-needle-circle-inner="false"
+                    data-animation-duration="1500"
+                    data-animation-rule="linear"
+                    data-color-border-outer="#333"
+                    data-color-border-outer-end="#111"
+                    data-color-border-middle="#222"
+                    data-color-border-middle-end="#111"
+                    data-color-border-inner="#111"
+                    data-color-border-inner-end="#333"
+                    data-color-needle-shadow-down="#333"
+                    data-color-needle-circle-outer="#333"
+                    data-color-needle-circle-outer-end="#111"
+                    data-color-needle-circle-inner="#111"
+                    data-color-needle-circle-inner-end="#222"
+                    data-value-box-border-radius="0"
+                    data-color-value-box-rect="#222"
+                    data-color-value-box-rect-end="#333"
+                    data-font-value="Led"
+                    data-font-numbers="Led"
+                    data-font-title="Led"
+                    data-font-units="Led"
+            ></canvas>
+
+          </td>
+
+        </tr>
+
+    </table>
+
+   </div>
+
+   <div id="landscape_stripchart" style="display:none;">
+
+       <table class="class_landscape_strip_chart">
+
+         <tr>
+           <td style="width:50%">
+             <canvas id="landscape_temperature_strip_chart"></canvas>
+           </td>
+
+           <td style="width:50%">
+             <canvas id="landscape_humidity_strip_chart"></canvas>
+           </td>
+
+         </tr>
+
+       </table>
+
+   </div>
+
+   <div id="portrait_stripchart" style="display:none;">
+
+       <table class="class_portrait_strip_chart">
+
+         <tr>
+           <td style="width:50%">
+             <canvas id="portrait_temperature_strip_chart"></canvas>
+           </td>
+         </tr>
+
+         <tr>
+           <td style="width:50%">
+             <canvas id="portrait_humidity_strip_chart"></canvas>
+           </td>
+         </tr>
+
+       </table>
+
+   </div>
+
+    <!-- Status Mode -->
+   <div id="status_landscape_display" style="display:none;">
+
+    <table id="status_landscape" class="class_table_margin">
+
+        <!-- Filled in by code dynamically -->
+
+    </table>
+
+   </div>
+
+    <!-- Settings Mode -->
+   <div id="settings_landscape_display" style="display:none;">
+
+    <table id="settings_landscape" class="class_table_margin">
+
+        <!-- Filled in by code dynamically -->
+
+    </table>
+
+   </div>
+
+  </body>
+</html>
+

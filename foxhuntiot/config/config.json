@@ -1,0 +1,35 @@
+{
+    "command": [
+        "iotapp",
+        "mainloop",
+        "arg1",
+        "arg2",
+        "arg3"
+    ],
+
+    "deviceAgent": "./device_agent/DeviceAgent.js",
+
+    "deviceAgentConfig": "./device_agent/df2020_config.json",
+
+    "deviceAgentCredentials": "$HOME/.credentials/foxhuntcreds.json",
+
+    "sensorInterval": 30,
+
+    "temperatureTarget": 70,
+
+    "humidityTarget": 70,
+
+    "simulationMode": false,
+
+    "trace": true,
+
+    "traceError": true,
+
+    "ipAddress": "0.0.0.0",
+
+    "port": 8080,
+
+    "defaultHomePage": "/html/foxhuntiot.html",
+
+    "restURL": "/api/v1/foxhuntiot/state"
+}

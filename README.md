@@ -119,3 +119,14 @@ a batch of readings from an ADF units log on an SD "flash" card.
 As the project moves forward additional code will be provided for reporting data
 from specific ADF units, as well as basic web pages for data access and reports.
 
+#FoxHuntIot
+
+FoxHunt is an IoT web application that provides for remote command and
+control of the ADF installation.
+
+To run it, provide Azure IoT Hub credentials, and install the
+node dependencies with "sudo npm install" in both the foxhuntiot,
+and foxhuntiot/device_agent directories.
+
+Default port is localhost:8080
+
